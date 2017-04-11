@@ -19,6 +19,8 @@ physics.setGravity(0, 0)
 --------------------------------------------------------------------------------------
 --Extending enemy class for our purpose
 local blue = enemy:new({HP=2, fT=700})
+local yellow = enemy:new({HP = 5, fT = 1000})
+
 
 function blue:spawn()
     -- body
@@ -27,9 +29,46 @@ function blue:spawn()
     self.sceneGroup:insert(self.shape)
     self.shape.pp = self;  -- parent object
     self.shape.tag = self.tag; -- “enemy”
-    self.shape:setFillColor (0,0,1);
-    physics.addBody(self.shape, "dynamic"); 
+    self.shape:setFillColor (0.3,0,0.9);
+    physics.addBody(self.shape, "dynamic", {density = 1000}); 
+    self.shape.isFixedRotation = true
     self:handle_collision()
+end
+
+function yellow:spawn()
+    -- body
+    local vertices = { 0,-37, 37,-10, 23,34, -23,34, -37,-10 }
+    self.shape = display.newPolygon(self.xPos, self.yPos, vertices )
+    self.sceneGroup:insert(self.shape)
+    self.shape:scale(0.6, 0.6);
+    self.shape.pp = self;  -- parent object
+    self.shape.tag = self.tag; -- “enemy”
+    self.shape:setFillColor (1,1,0);
+    physics.addBody(self.shape, "dynamic", {destroy = 100}); 
+    self.shape.isFixedRotation = true
+    self:handle_collision()
+end
+
+function yellow:move()
+    -- body
+    if(self.player_obj ~=nil and self.player_obj.shape ~= nil and self ~=nil and self.shape ~= nil) then
+        --move only if player is alive   and enemy is also alive
+        local xPos = self.shape.x
+        local yPos = self.shape.y
+
+        transition.to(self.shape, 
+            {
+                x = xPos, 
+                y = yPos + 10,
+                time = 800,
+                onComplete = function ()
+                    -- body
+                    self:move()
+                end
+            }
+        )    
+
+    end
 end
 
 function blue:move()
@@ -95,6 +134,7 @@ function blue:shoot (interval)
 
           if(event.other.tag == "player") then
               event.other.pp:hit()
+              self.player_hp.text = self.player_hp.text - 1;
           end
       end
     end
@@ -106,7 +146,6 @@ function blue:shoot (interval)
     function (event) createShot(self) end, -1);
   end
 end
-
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
 local game_time = 180000 -- 3mins = 180000 ms
@@ -140,8 +179,25 @@ function scene:create( event )
     local wall_top = display.newRect( sceneGroup, swidth/2, sheight/60-100, swidth+50, 70)
     physics.addBody(wall_top, "static")
 
+    --Score hit points and player life
+    local hit_text = display.newText( sceneGroup, "Hit:", swidth/1.4, sheight/20-50, native.systemFontBold, 30) 
+    hit_text:setFillColor(0.2, 1, 0.1)
+    game_scope.hit_text =hit_text
+
+    local points = display.newText( sceneGroup, "0", swidth/1.14, sheight/20-50, native.systemFontBold, 30) 
+    points:setFillColor(0.2, 1, 0.1)
+    game_scope.points = points
+    --Player life and hits point remaning
+    local life_text = display.newText( sceneGroup, "HP:", swidth/14, sheight/20-50, native.systemFontBold, 30) 
+    life_text:setFillColor(0.2, 1, 0.1)
+    game_scope.life_text =life_text
+
+    local player_hp = display.newText( sceneGroup, "5", swidth/5, sheight/20-50, native.systemFontBold, 30) 
+    player_hp:setFillColor(0.2, 1, 0.1)
+    game_scope.player_hp = player_hp
+
     --Player objects
-    local player = player:new({HP=5, xPos=swidth/2, yPos=sheight/1.12})
+    local player = player:new({HP=5, xPos=swidth/2, yPos=sheight/1.12, points = points})
     game_scope.player = player
     player:spawn()
     sceneGroup:insert(player.shape)
@@ -188,14 +244,23 @@ function scene:show( event )
             function()
                 game_loop_counter = game_loop_counter + 1
                 --Place to create enemies and perform actions
-                local x_origin = math.random( 0, swidth)
-                local blue_em_obj = blue:new({xPos=x_origin, yPos=20, sceneGroup=sceneGroup, player_obj = game_scope.player})
-                blue_em_obj:spawn()
-                blue_em_obj:shoot()
-                blue_em_obj:move()
-                table.insert( game_scope.enemy, blue_em_obj)
+                local decision_num = math.random()
 
-                -- sceneGroup:insert(blue_em_obj.shape)
+                if(decision_num > 0.6) then
+                    local x_origin = math.random( 0, swidth)
+                    local blue_em_obj = blue:new({xPos=x_origin, yPos=20, sceneGroup=sceneGroup, player_obj = game_scope.player, player_hp = game_scope.player_hp})
+                    blue_em_obj:spawn()
+                    blue_em_obj:shoot()
+                    blue_em_obj:move()
+                    table.insert( game_scope.enemy, blue_em_obj)
+                else
+                    local x_origin = math.random(0, swidth)
+                    local yellow_em_obj = yellow:new({xPos = x_origin, yPos = 20, sceneGroup = sceneGroup, player_obj = game_scope.player, player_hp = game_scope.player_hp})
+                    yellow_em_obj:spawn()
+                    yellow_em_obj:shoot()
+                    yellow_em_obj:move()
+                    table.insert(game_scope.enemy, yellow_em_obj)
+                end
 
                 if(game_scope.player:getHP() < 1) then
                 --Player dies and player loss and game over

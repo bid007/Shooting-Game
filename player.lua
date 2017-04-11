@@ -60,6 +60,7 @@ function Player:fire (event)
         event.target=nil;
         if (event.other.tag == "enemy") then
           event.other.pp:hit();
+          self.points.text = self.points.text + 1;
         end
       end
     end

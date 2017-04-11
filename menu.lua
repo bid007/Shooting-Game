@@ -29,8 +29,6 @@ function scene:create( event )
     --Team member names
     local member_one = display.newText( sceneGroup, "Bid Sharma", swidth/5, sheight/1.05, native.systemFontBold, 15)
     member_one:setFillColor(0.9, 0.8, 0.4)
-    local member_two = display.newText( sceneGroup, "Sarvagya Pant", swidth/4.3, sheight/1, native.systemFontBold, 15)
-    member_two:setFillColor(0.9, 0.8, 0.4)
     --Shooting Game Name
     local game_name = display.newText( sceneGroup, "Shooting Game", swidth/2, sheight/4, native.systemFontBold, 25)
     game_name:setFillColor(0.9, 0.8, 0.4)

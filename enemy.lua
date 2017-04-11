@@ -104,7 +104,8 @@ function Enemy:shoot (interval)
    	      event.target = nil;
 
           if(event.other.tag == "player") then
-              event.other.pp:hit()
+              event.other.pp:hit();
+              self.player_hp.text = self.player_hp.text - 1;
           end
       end
     end

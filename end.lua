@@ -8,7 +8,7 @@ local scene = composer.newScene()
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
 local function gotomenu(event)
-    local options = {effect = "fade", time = 200}
+    local options = {effect = "fade", time = 500}
     composer.gotoScene("menu", options)
 end
 -- -----------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ function scene:show( event )
  
     elseif ( phase == "did" ) then
         -- Code here runs when the scene is entirely on screen
-        timer.performWithDelay(500, 
+        timer.performWithDelay(1000, 
             function()
             -- body
                 gotomenu()
