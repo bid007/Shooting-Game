@@ -25,10 +25,12 @@ function Player:move (event)
       self.markX = self.shape.x
     end
 
-  elseif event.phase == "moved" then   
+  elseif event.phase == "moved" then 
       if(self ~= nil and self.shape ~= nil) then
+          if(self.markX == nil) then
+            self.markX = self.shape.x
+          end
           local x = (event.x - event.xStart) + self.markX  
-
           if (x <= 20 + self.shape.width/2) then
              self.shape.x = 20+self.shape.width/2;
           elseif (x >= display.contentWidth-20-self.shape.width/2) then
